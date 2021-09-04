@@ -6,10 +6,12 @@ import com.amitrai.lox.Expr.Assign;
 import com.amitrai.lox.Expr.Binary;
 import com.amitrai.lox.Expr.Grouping;
 import com.amitrai.lox.Expr.Literal;
+import com.amitrai.lox.Expr.Logical;
 import com.amitrai.lox.Expr.Unary;
 import com.amitrai.lox.Expr.Variable;
 import com.amitrai.lox.Stmt.Block;
 import com.amitrai.lox.Stmt.Expression;
+import com.amitrai.lox.Stmt.If;
 import com.amitrai.lox.Stmt.Print;
 import com.amitrai.lox.Stmt.Var;
 
@@ -184,5 +186,26 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     } finally {
       this.environment = previous;
     }
+  }
+
+  @Override
+  public Void visitIfStmt(If stmt) {
+    if(isTruthy(evaluate(stmt.condition))) {
+      execute(stmt.thenBranch);
+    } else if (stmt.elseBranch != null) {
+      execute(stmt.elseBranch);
+    }
+    return null;
+  }
+
+  @Override
+  public Object visitLogicalExpr(Logical expr) {
+    Object left = evaluate(expr.left);
+    if(expr.operator.type == TokenType.OR) {
+      if(isTruthy(left)) return left;
+    } else {
+      if(isTruthy(left)) return left;
+    }
+    return evaluate(expr.right);
   }
 }

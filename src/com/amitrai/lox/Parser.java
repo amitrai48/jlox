@@ -12,7 +12,7 @@ public class Parser {
 
   private final List<Token> tokens;
   private int current = 0;
-  
+
   Parser(List<Token> tokens) {
     this.tokens = tokens;
   }
@@ -30,9 +30,9 @@ public class Parser {
     return assignment();
   }
 
-  //assignment = IDENTIFIER "=" assigment | equality
+  //assignment = IDENTIFIER "=" assigment | logic_or
   private Expr assignment() {
-    Expr expr = equality();
+    Expr expr = or();
     if(match(TokenType.EQUAL)) {
       Token equals = previous();
       Expr value = assignment();
@@ -41,6 +41,28 @@ public class Parser {
         return new Expr.Assign(name, value);
       }
       error(equals, "Invalid assignment target.");
+    }
+    return expr;
+  }
+
+  //logic_or = logic_and ( "or" logic_and )* ;
+  private Expr or() {
+    Expr expr = and();
+    while(match(TokenType.OR)) {
+      Token operator = previous();
+      Expr right = and();
+      expr = new Expr.Logical(expr, operator, right);
+    }
+    return expr;
+  }
+
+  //logic_and = equality ( "and" equality )*
+  private Expr and() {
+    Expr expr = equality();
+    while(match(TokenType.AND)) {
+      Token operator = previous();
+      Expr right = equality();
+      expr = new Expr.Logical(expr, operator, right);
     }
     return expr;
   }
@@ -104,7 +126,7 @@ public class Parser {
     if(match(TokenType.FALSE)) return new Literal(false);
     if(match(TokenType.TRUE)) return new Literal(true);
     if(match(TokenType.NIL)) return new Literal(null);
-    
+
     if(match(TokenType.NUMBER, TokenType.STRING)) {
       return new Literal(previous().literal);
     }
@@ -141,11 +163,24 @@ public class Parser {
     return new Stmt.Var(name, initializer);
   }
 
-  // statement = exprStatement | printStatement | blockStatement
+  // statement = exprStatement | if statement | printStatement | blockStatement
   private Stmt statement() {
+    if (match(TokenType.IF)) return ifStatement();
     if (match(TokenType.PRINT)) return printStatement();
     if (match(TokenType.LEFT_BRACE)) return blockStatement();
     return expressionStatement();
+  }
+
+  private Stmt ifStatement() {
+    consume(TokenType.LEFT_PAREN, "Expect ( after if");
+    Expr condition = expression();
+    consume(TokenType.RIGHT_PAREN, "Expect ) after condition");
+    Stmt thenBranch = statement();
+    Stmt elseBranch = null;
+    if(match(TokenType.ELSE)) {
+      elseBranch = statement();
+    }
+    return new Stmt.If(condition, thenBranch, elseBranch);
   }
 
   private Stmt printStatement() {

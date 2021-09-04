@@ -4,6 +4,7 @@ import com.amitrai.lox.Expr.Assign;
 import com.amitrai.lox.Expr.Binary;
 import com.amitrai.lox.Expr.Grouping;
 import com.amitrai.lox.Expr.Literal;
+import com.amitrai.lox.Expr.Logical;
 import com.amitrai.lox.Expr.Unary;
 import com.amitrai.lox.Expr.Variable;
 
@@ -53,6 +54,12 @@ public class ASTPrinter implements Expr.Visitor<String> {
 
   @Override
   public String visitAssignExpr(Assign expr) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String visitLogicalExpr(Logical expr) {
     // TODO Auto-generated method stub
     return null;
   }
