@@ -14,6 +14,7 @@ import com.amitrai.lox.Stmt.Expression;
 import com.amitrai.lox.Stmt.If;
 import com.amitrai.lox.Stmt.Print;
 import com.amitrai.lox.Stmt.Var;
+import com.amitrai.lox.Stmt.While;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
@@ -207,5 +208,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
       if(isTruthy(left)) return left;
     }
     return evaluate(expr.right);
+  }
+
+  @Override
+  public Void visitWhileStmt(While stmt) {
+    while(isTruthy(evaluate(stmt.condition))) {
+      execute(stmt.body);
+    }
+    return null;
   }
 }
