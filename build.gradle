@@ -1,0 +1,5 @@
+apply plugin: 'java'
+apply plugin: 'application'
+sourceSets.main.java.srcDirs = ['src']
+
+mainClassName = 'com.amitrai.lox.Lox'
